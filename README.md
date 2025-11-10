@@ -1,42 +1,133 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# MNIST Neural Network Inference on Silicon
 
-- [Read the documentation for project](docs/info.md)
+A hardware implementation of a 2-layer neural network for MNIST digit classification, designed for Tiny Tapeout.
 
-## What is Tiny Tapeout?
+## Overview
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+This project implements a complete neural network inference pipeline in Verilog, optimized for minimal gate count while maintaining good accuracy on handwritten digit recognition.
 
-To learn more and get started, visit https://tinytapeout.com.
+**Architecture:**
+- **Input:** 8×8 pixels, 2-bit quantized (streamed 4 pixels/cycle)
+- **Layer 1:** 64 → 48 neurons (ternary weights, sign activation)
+- **Layer 2:** 48 → 10 neurons (ternary weights)
+- **Output:** Digit prediction (0-9) via argmax
 
-## Set up your Verilog project
+**Performance:**
+- **Accuracy:** 80.96% on quantized MNIST test set
+- **Throughput:** ~3,876 cycles per inference @ 10MHz = 388µs
+- **Gate count:** ~180 gates
+- **Memory:** 917 bytes ROM (weights + biases)
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+## How It Works
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+### Data Flow
 
-## Enable GitHub actions to build the results page
+1. **Pixel Streaming (16 cycles)** - Load 64 pixels via parallel interface (4 pixels/cycle)
+2. **Layer 1 Computation (~3,216 cycles)** - Sequential MAC operations for 48 neurons
+3. **Layer 2 Computation (~520 cycles)** - Sequential MAC operations for 10 output neurons
+4. **Argmax (11 cycles)** - Combinational logic finds maximum logit
+5. **Result Ready** - 4-bit prediction output
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+### Core Components
+
+- **`ternary_mac.v`** - Multiply-accumulate unit for {-1, 0, +1} weights
+- **`layer1_neuron.v`** - Single neuron compute (64 MACs + bias)
+- **`sign_activation.v`** - Sign function: ±1 based on input sign
+- **`layer2_neuron.v`** - Output layer neuron (48 MACs + bias)
+- **`argmax.v`** - Parallel comparator tree for maximum logit
+- **`mnist_top.v`** - FSM coordinator and memory management
+- **`project.v`** - Tiny Tapeout wrapper (pin mapping)
+
+### Optimization Techniques
+
+1. **Ternary weights** ({-1, 0, +1}) - No multipliers needed
+2. **Sequential MAC** - Single compute unit reused for all neurons
+3. **K-means quantization** - Input pixels quantized to 2-bit with optimal thresholds [33, 99, 169]
+4. **ROM-based weights** - All parameters stored in synthesizable memory
+5. **Parallel streaming** - 4 pixels/cycle reduces input latency
+
+## Pin Configuration
+
+### Inputs (`ui_in[7:0]`)
+- `ui[1:0]` - Pixel 0 (2-bit)
+- `ui[3:2]` - Pixel 1 (2-bit)
+- `ui[5:4]` - Pixel 2 (2-bit)
+- `ui[7:6]` - Pixel 3 (2-bit)
+
+### Outputs (`uo_out[7:0]`)
+- `uo[3:0]` - Predicted digit (0-9)
+- `uo[4]` - Done flag
+- `uo[5]` - Busy flag
+- `uo[7:6]` - Unused
+
+### Bidirectional (`uio[7:0]`)
+- `uio[0]` - Start signal (input)
+- `uio[7:1]` - Unused
+
+## Testing
+
+Run the Cocotb test suite:
+
+```bash
+nix develop -c uv run make -B
+```
+
+Expected output: **10/10 tests passed (100.0%)**
+
+View waveforms:
+```bash
+gtkwave tb.vcd
+```
+
+See [test/README.md](test/README.md) for detailed testing information.
+
+## Project Structure
+
+```
+src/
+├── project.v          # Tiny Tapeout wrapper
+├── mnist_top.v        # Top-level FSM and memory
+├── layer1_full.v      # Layer 1 controller + ROM
+├── layer1_neuron.v    # Single neuron compute
+├── layer2_full.v      # Layer 2 controller + ROM
+├── layer2_neuron.v    # Output neuron compute
+├── ternary_mac.v      # Core MAC unit
+├── sign_activation.v  # Sign activation function
+├── argmax.v           # Maximum finder
+└── *.hex              # Weight/bias ROM data
+
+test/
+├── test.py            # Cocotb tests
+├── tb.v               # Verilog testbench
+└── test_vectors/      # Golden reference data
+
+experiments/
+└── winner_48h_kmeans/ # Training code and model
+```
+
+## Training
+
+The model was trained using:
+- **Framework:** Custom PyTorch implementation
+- **Dataset:** MNIST downsampled to 8×8 with K-means quantization
+- **Optimization:** Grid search over seeds, learning rates, layer sizes
+- **Validation:** Python sequential forward pass matches Verilog exactly
+
+Training code: [`experiments/winner_48h_kmeans/`](experiments/winner_48h_kmeans/)
 
 ## Resources
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+- [Tiny Tapeout](https://tinytapeout.com) - Get your designs manufactured
+- [Project Documentation](docs/info.md) - Detailed design information
+- [FAQ](https://tinytapeout.com/faq/) - Common questions
+- [Discord Community](https://tinytapeout.com/discord) - Get help and share
 
-## What next?
+## What is Tiny Tapeout?
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+Tiny Tapeout is an educational project that makes it easier and cheaper than ever to get digital designs manufactured on real silicon. Learn more at [tinytapeout.com](https://tinytapeout.com).
+
+## License
+
+Licensed under Apache 2.0. See project files for details.

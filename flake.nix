@@ -28,6 +28,7 @@
 
               # Build tools
               gnumake
+              coreutils
             ];
 
             shellHook = ''

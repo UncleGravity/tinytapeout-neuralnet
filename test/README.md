@@ -1,37 +1,62 @@
-# Sample testbench for a Tiny Tapeout project
+# Test Directory
 
-This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.
-See below to get started or for more information, check the [website](https://tinytapeout.com/hdl/testing/).
+This directory contains Cocotb tests for the MNIST neural network inference core.
 
-## Setting up
+## Quick Start
 
-1. Edit [Makefile](Makefile) and modify `PROJECT_SOURCES` to point to your Verilog files.
-2. Edit [tb.v](tb.v) and replace `tt_um_example` with your module name.
+Run tests from the test directory root:
 
-## How to run
-
-To run the RTL simulation:
-
-```sh
-make -B
+```bash
+nix develop -c uv run make -B
 ```
 
-To run gatelevel simulation, first harden your project and copy `../runs/wokwi/results/final/verilog/gl/{your_module_name}.v` to `gate_level_netlist.v`.
+## Architecture
 
-Then run:
+The design implements a 2-layer neural network optimized for MNIST digit classification:
 
-```sh
-make -B GATES=yes
+```
+Input: 8×8 pixels, 2-bit quantized [0-3]
+  ↓ (parallel streaming: 4 pixels/cycle, 16 cycles)
+Layer 1: 64 → 48 neurons (ternary weights, sign activation)
+  ↓
+Layer 2: 48 → 10 neurons (ternary weights)
+  ↓
+Argmax: Output digit (0-9)
 ```
 
-## How to view the VCD file
+## Test Files
 
-Using GTKWave
-```sh
-gtkwave tb.vcd tb.gtkw
+- `Makefile` - Test runner (uses Icarus Verilog + Cocotb)
+- `tb.v` - Verilog testbench wrapper
+- `test.py` - Main Cocotb test (parallel streaming protocol)
+- `test_vectors/` - 105 pre-generated golden reference test cases
+- `*.hex` - ROM data (weights/biases, copied from `../src/`)
+
+## Viewing Waveforms
+
+After running tests, inspect signals with GTKWave:
+
+```bash
+gtkwave tb.vcd
 ```
 
-Using Surfer
-```sh
-surfer tb.vcd
+Key signals to observe:
+- `uut.start` - Inference start trigger
+- `uut.mnist_core.state` - FSM state
+- `uut.uo_out[0]` - Done flag
+- `uut.uo_out[4:1]` - Predicted digit
+
+## Dependencies
+
+All dependencies are managed via Nix (`flake.nix`) and uv (`pyproject.toml`):
+
+## Regenerating Test Vectors
+
+Test vectors are pre-generated. Only regenerate when the model changes:
+
+```bash
+cd test_vectors
+nix develop -c uv run python generate_vectors.py
 ```
+
+This creates 105 test cases with golden reference values for all intermediate signals.

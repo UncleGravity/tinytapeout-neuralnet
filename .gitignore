@@ -5,7 +5,13 @@ runs
 tt_submission
 src/user_config.json
 src/config_merged.json
+
+# Test artifacts
 test/sim_build
 test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
+test/.venv
+
+# Note: test/*.hex files are needed for Icarus simulation runtime
+# They are copies from src/*.hex - keep them in repo for convenience

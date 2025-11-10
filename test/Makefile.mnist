@@ -1,0 +1,30 @@
+# Test MNIST Top Module (promoted to src/)
+# This tests the core MNIST inference engine before TT wrapper integration
+
+SIM ?= icarus
+TOPLEVEL_LANG ?= verilog
+
+SRC_DIR = $(PWD)/../src
+
+# All required Verilog sources from src/
+VERILOG_SOURCES = \
+	$(SRC_DIR)/ternary_mac.v \
+	$(SRC_DIR)/sign_activation.v \
+	$(SRC_DIR)/layer1_neuron.v \
+	$(SRC_DIR)/layer1_full.v \
+	$(SRC_DIR)/layer2_neuron.v \
+	$(SRC_DIR)/layer2_full.v \
+	$(SRC_DIR)/argmax.v \
+	$(SRC_DIR)/mnist_top.v \
+	tb_mnist.v
+
+# Top level testbench module
+TOPLEVEL = tb_mnist_top
+
+# Python test module
+MODULE = test_mnist
+
+# Simulator compile args - add src directory to search path for .hex files
+COMPILE_ARGS += -I$(SRC_DIR)
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

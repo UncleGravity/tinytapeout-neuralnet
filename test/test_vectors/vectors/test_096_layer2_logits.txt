@@ -1,0 +1,11 @@
+# Layer 2: Final logits (after bias)
+8
+-3
+0
+-3
+-12
+2
+2
+-9
+3
+-11

@@ -1,0 +1,4 @@
+Test case: 79
+True label: 6
+Predicted: 6
+Correct: True

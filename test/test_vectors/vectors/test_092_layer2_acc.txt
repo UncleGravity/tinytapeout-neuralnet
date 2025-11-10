@@ -1,0 +1,11 @@
+# Layer 2: After MAC (before bias)
+0
+0
+0
+6
+-5
+1
+-2
+-8
+3
+-9
