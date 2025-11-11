@@ -16,6 +16,9 @@ module sign_activation (
 
     // Sign function: +1 if in_val >= 0, -1 if in_val < 0
     // In 2-bit signed: +1 = 2'b01, -1 = 2'b11
+    // Note: We only need the sign bit [6], lower bits are intentionally unused
+    /* verilator lint_off UNUSEDSIGNAL */
     assign out = (in_val[6] == 1'b0) ? 2'sb01 : 2'sb11;
+    /* verilator lint_on UNUSEDSIGNAL */
 
 endmodule

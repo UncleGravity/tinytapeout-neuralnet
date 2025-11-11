@@ -102,7 +102,6 @@ async def test_wrapper_single_inference(dut):
     dut._log.info(f"Test Vector: 0")
     dut._log.info(f"True Label: {metadata.get('True label', '?')}")
     dut._log.info(f"Expected Prediction: {expected}")
-    dut._log.info("")
 
     # Reset
     dut.ena.value = 1
@@ -166,7 +165,6 @@ async def test_wrapper_single_inference(dut):
     done = bool(uo_out_val & 0x10)  # Bit 4 = done
     busy = bool(uo_out_val & 0x20)  # Bit 5 = busy
 
-    dut._log.info("")
     dut._log.info("Inference complete!")
     dut._log.info(f"Total Cycles: {cycle_count}")
     dut._log.info(f"Expected:     {expected}")
@@ -189,7 +187,6 @@ async def test_wrapper_single_inference(dut):
 async def test_wrapper_multiple_inferences(dut):
     """Test wrapper with multiple inferences."""
 
-    dut._log.info("")
     dut._log.info("=" * 80)
     dut._log.info("TT Wrapper - Multiple Inference Test (10 vectors)")
     dut._log.info("=" * 80)
@@ -303,7 +300,6 @@ async def test_wrapper_multiple_inferences(dut):
     else:
         avg_cycles = min_cycles = max_cycles = 0
 
-    dut._log.info("")
     dut._log.info("=" * 80)
     dut._log.info(
         f"RESULTS: {num_pass}/{num_vectors} tests passed ({100 * num_pass / num_vectors:.1f}%)"

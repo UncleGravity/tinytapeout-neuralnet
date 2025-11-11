@@ -59,7 +59,6 @@ module mnist_top (
     // ========================================================================
     reg layer1_start;
     wire layer1_done;
-    wire layer1_busy;
     
     // Layer1 output storage for Layer2 to read
     reg signed [1:0] layer1_outputs [0:47];
@@ -83,7 +82,7 @@ module mnist_top (
         .start(layer1_start),
         .pixels_flat(pixels_flat),             // Pass flattened pixel vector
         .done(layer1_done),
-        .busy(layer1_busy),
+        .busy(),  // Unused
         .read_addr(layer1_read_addr),
         .read_data(layer1_read_data)
     );
@@ -93,7 +92,6 @@ module mnist_top (
     // ========================================================================
     reg layer2_start;
     wire layer2_done;
-    wire layer2_busy;
     wire signed [5:0] layer2_read_data;
     
     // Pack layer1 outputs into flat vector for layer2_full
@@ -111,7 +109,7 @@ module mnist_top (
         .start(layer2_start),
         .layer1_activations_flat(layer1_outputs_flat),  // Pass flattened activation vector
         .done(layer2_done),
-        .busy(layer2_busy),
+        .busy(),  // Unused
         .read_addr(argmax_read_idx),           // For reading logits for argmax
         .read_data(layer2_read_data)
     );
