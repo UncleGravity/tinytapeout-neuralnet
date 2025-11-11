@@ -4,6 +4,16 @@
 
 A hardware implementation of a 2-layer neural network for MNIST digit classification, designed for Tiny Tapeout.
 
+> ## What is Tiny Tapeout?
+>
+> Tiny Tapeout is an educational project that makes it easier and cheaper than ever to get digital designs manufactured on real silicon. Learn more at [tinytapeout.com](https://tinytapeout.com).
+
+## 3D Viewer
+[Open 3D viewer](https://gds-viewer.tinytapeout.com/?model=https://unclegravity.github.io/tinytapeout-verilog/tinytapeout.oas&pdk=sky130A)
+
+## 2D Preview
+![png](https://unclegravity.github.io/tinytapeout-verilog/gds_render.png)
+
 ## Overview
 
 This project implements a complete neural network inference pipeline in Verilog, optimized for minimal gate count while maintaining good accuracy on handwritten digit recognition.
@@ -123,10 +133,6 @@ Training code: [`experiments/winner_48h_kmeans/`](experiments/winner_48h_kmeans/
 - [Project Documentation](docs/info.md) - Detailed design information
 - [FAQ](https://tinytapeout.com/faq/) - Common questions
 - [Discord Community](https://tinytapeout.com/discord) - Get help and share
-
-## What is Tiny Tapeout?
-
-Tiny Tapeout is an educational project that makes it easier and cheaper than ever to get digital designs manufactured on real silicon. Learn more at [tinytapeout.com](https://tinytapeout.com).
 
 ## License
 
