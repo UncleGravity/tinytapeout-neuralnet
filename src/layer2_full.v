@@ -47,18 +47,18 @@ module layer2_full (
     end
 
     // ========================================================================
-    // Weight and Bias ROM
+    // Weight and Bias ROM (Hierarchical)
     // ========================================================================
     
-    // ROM addressing for current neuron
-    wire [8:0] weight_addr = neuron_idx * 9'd48 + {3'd0, neuron_mac_count};
-    wire [3:0] bias_addr = neuron_idx;
+    // ROM uses hierarchical addressing: neuron_idx + input_idx
+    // Note: 1-cycle latency (registered outputs)
     wire [1:0] current_weight;
     wire [3:0] current_bias;
     
     layer2_rom rom_inst (
-        .weight_addr(weight_addr),
-        .bias_addr(bias_addr),
+        .neuron_idx(neuron_idx),
+        .input_idx(neuron_mac_count),  // MAC counter is the input index
+        .bias_addr(neuron_idx),
         .weight_data(current_weight),
         .bias_data(current_bias)
     );
