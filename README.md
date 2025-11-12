@@ -9,10 +9,10 @@ A hardware implementation of a 2-layer neural network for MNIST digit classifica
 > Tiny Tapeout is an educational project that makes it easier and cheaper than ever to get digital designs manufactured on real silicon. Learn more at [tinytapeout.com](https://tinytapeout.com).
 
 ## 3D Viewer
-[Open 3D viewer](https://gds-viewer.tinytapeout.com/?model=https://unclegravity.github.io/tinytapeout-verilog/tinytapeout.oas&pdk=sky130A)
+[Open 3D viewer](https://gds-viewer.tinytapeout.com/?model=https://unclegravity.github.io/tinytapeout-neuralnet/tinytapeout.oas&pdk=sky130A)
 
 ## 2D Preview
-![png](https://unclegravity.github.io/tinytapeout-verilog/gds_render.png)
+![png](https://unclegravity.github.io/tinytapeout-neuralnet/gds_render.png)
 
 ## Overview
 

@@ -17,8 +17,10 @@ VERILOG_SOURCES += $(SRC_DIR)/project.v \
                    $(SRC_DIR)/mnist_top.v \
                    $(SRC_DIR)/layer1_full.v \
                    $(SRC_DIR)/layer1_neuron.v \
+                   $(SRC_DIR)/layer1_rom.v \
                    $(SRC_DIR)/layer2_full.v \
                    $(SRC_DIR)/layer2_neuron.v \
+                   $(SRC_DIR)/layer2_rom.v \
                    $(SRC_DIR)/ternary_mac.v \
                    $(SRC_DIR)/sign_activation.v \
                    $(SRC_DIR)/argmax.v
